@@ -29,12 +29,12 @@ public class ThreadServidor implements Runnable {
 		OutputStream outputStream;
 		try {
 			outputStream = socket.getOutputStream();
-			BufferedImage image = ImageIO.read(new File("./Files/succ.jpg"));
+			BufferedImage image = ImageIO.read(new File("./Files/cursed.jpg"));
 
 	        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 	        ImageIO.write(image, "jpg", byteArrayOutputStream);
 
-	        byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
+	        byte[] size = ByteBuffer.allocate(8).putInt(byteArrayOutputStream.size()).array();
 	        outputStream.write(size);
 	        outputStream.write(byteArrayOutputStream.toByteArray());
 	        outputStream.flush();

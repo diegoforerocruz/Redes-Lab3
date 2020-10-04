@@ -15,17 +15,23 @@ public class Server
 
  public Server(int port) 
  { 
+
+     
      try
      { 
          server = new ServerSocket(port);
          ExecutorService pool = Executors.newFixedThreadPool(25);
-         
     	 System.out.println("Servidor Iniciado"); 
+    	 System.out.println("AAAAAAARNOOOOOLD2!!!!!"); 
+
 
          while(true){
+        	 System.out.println("AAAAAAARNOOOOOLD3!!!!!"); 
+
 
              System.out.println("Esperando conexión ..."); 
              socket = server.accept(); 
+             pool.execute(new ThreadServidor(socket));
              System.out.println("Cliente aceptado"); 
              
              in = new DataInputStream( 
@@ -33,35 +39,21 @@ public class Server
 
              String line = ""; 
 
-             while (!line.equals("Terminado")) 
-             { 
-                 try
-                 { 
-                     line = in.readUTF(); 
-                     System.out.println(line); 
-
-                 } 
-                 catch(IOException i) 
-                 {
-                	 i.getMessage(); 
-                 } 
-             } 
+           
              System.out.println("Cerrando Conexión"); 
-
-             socket.close(); 
-             in.close(); 
+ 
          }
-         
-         
+
      } 
      catch(IOException i) 
      { 
-         i.getMessage(); 
+         System.out.println(i.getMessage());
+         i.printStackTrace();
      } 
  } 
 
  public static void main(String args[]) 
  { 
-     Server server = new Server(5000); 
+     Server server = new Server(5002); 
  } 
 } 
