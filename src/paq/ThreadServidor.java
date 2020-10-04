@@ -11,27 +11,44 @@ import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
 
-public class ThreadServidor extends Thread {
+public class ThreadServidor implements Runnable {
 	
-	public ThreadServidor (){
+	private Socket socket;
+	
+	public ThreadServidor (Socket psocket){
+		socket = psocket;
+	}
+	
+	public void cambiarSocket(){
 		
 	}
-	
-	public void run(Socket socket) throws IOException{
-        OutputStream outputStream = socket.getOutputStream();
 
-        BufferedImage image = ImageIO.read(new File("./Files/succ.jpg"));
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		OutputStream outputStream;
+		try {
+			outputStream = socket.getOutputStream();
+			BufferedImage image = ImageIO.read(new File("./Files/succ.jpg"));
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(image, "jpg", byteArrayOutputStream);
+	        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+	        ImageIO.write(image, "jpg", byteArrayOutputStream);
 
-        byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
-        outputStream.write(size);
-        outputStream.write(byteArrayOutputStream.toByteArray());
-        outputStream.flush();
-        System.out.println("Flushed: " + System.currentTimeMillis());
+	        byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
+	        outputStream.write(size);
+	        outputStream.write(byteArrayOutputStream.toByteArray());
+	        outputStream.flush();
+	        System.out.println("Flushed: " + System.currentTimeMillis());
 
-        socket.close();
+	        socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        
 	}
+
+
 
 }

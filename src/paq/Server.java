@@ -2,6 +2,8 @@ package paq;
 
 import java.net.*;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.io.*; 
 
 public class Server 
@@ -16,12 +18,7 @@ public class Server
      try
      { 
          server = new ServerSocket(port);
-         int k = 0;
-         while(k<25){
-        	 Thread hilo =  new ThreadServidor();
-        	 
-        	 k++;
-         }
+         ExecutorService pool = Executors.newFixedThreadPool(25);
          
     	 System.out.println("Servidor Iniciado"); 
 
@@ -30,7 +27,7 @@ public class Server
              System.out.println("Esperando conexión ..."); 
              socket = server.accept(); 
              System.out.println("Cliente aceptado"); 
-
+             
              in = new DataInputStream( 
                  new BufferedInputStream(socket.getInputStream())); 
 
