@@ -5,10 +5,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
+import javax.crypto.Mac;
 import javax.imageio.ImageIO;
 
 public class ThreadServidor implements Runnable {
@@ -48,7 +52,24 @@ public class ThreadServidor implements Runnable {
 
         
 	}
+	
+	public static byte[] hdg(byte[] msg, String algo) throws NoSuchAlgorithmException, InvalidKeyException, IllegalStateException, UnsupportedEncodingException {
+	    Mac mac = Mac.getInstance(algo);
+	    
+	    byte[] bytes = mac.doFinal(msg);
+	    return bytes;
+	}
 
+	public static boolean vi(byte[] msg, String algo, byte[] hash) throws Exception {
+	    byte[] nuevo = hdg(msg, algo);
+	    if (nuevo.length != hash.length)
+	      return false; 
+	    for (int i = 0; i < nuevo.length; i++) {
+	      if (nuevo[i] != hash[i])
+	        return false; 
+	    } 
+	    return true;
+	  }
 
 
 }
