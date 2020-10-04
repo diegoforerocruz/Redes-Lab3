@@ -36,6 +36,7 @@ public class Client
          inputStream.read(imageAr);
 
          BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageAr));
+         System.out.println("hashResult: "+imageAr.hashCode());
 
          System.out.println("Received " + image.getHeight() + "x" + image.getWidth() + ": " + System.currentTimeMillis());
          ImageIO.write(image, "jpg", new File("./Files/"+port+".jpg"));

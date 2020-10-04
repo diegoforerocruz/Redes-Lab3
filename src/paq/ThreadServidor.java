@@ -1,8 +1,10 @@
 package paq;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -33,7 +35,11 @@ public class ThreadServidor implements Runnable {
 		OutputStream outputStream;
 		try {
 			outputStream = socket.getOutputStream();
-			BufferedImage image = ImageIO.read(new File("./Files/cursed.jpg"));
+			BufferedReader image = new BufferedReader(new FileReader(new File("./Files/prueba.txt")));
+			long hash1 = image.hashCode();
+			long hash2 = image.hashCode();
+			
+			
 
 	        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 	        ImageIO.write(image, "jpg", byteArrayOutputStream);
@@ -41,6 +47,7 @@ public class ThreadServidor implements Runnable {
 	        byte[] size = ByteBuffer.allocate(8).putInt(byteArrayOutputStream.size()).array();
 	        outputStream.write(size);
 	        outputStream.write(byteArrayOutputStream.toByteArray());
+	        System.out.println("hash1: "+byteArrayOutputStream.toByteArray().hashCode());
 	        outputStream.flush();
 	        System.out.println("Flushed: " + System.currentTimeMillis());
 
