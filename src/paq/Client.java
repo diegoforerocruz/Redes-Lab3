@@ -14,6 +14,8 @@ public class Client {
 
 	public Client() throws Exception{
 			iniciarConexion();
+			os.close();
+			is.close();
 			socket.close();
 	}
 
@@ -24,7 +26,7 @@ public class Client {
 		md = MessageDigest.getInstance(Server.HASH);
 		System.out.println("Conectado");
 		os.writeUTF("Preparado");
-		System.out.println("Esperando respuesta del servidor");
+		System.out.println("Preparado para recibir la respuesta del servidor");
 		String documento = is.readUTF();
 		int size = is.readInt();
 		byte[] hash = new byte[size];
@@ -33,7 +35,7 @@ public class Client {
 		}
 		if(verificacionHashString(documento, hash)) {
 			os.writeUTF("Recibido");
-			System.out.println("Mensaje correcto");
+			System.out.println("Mensaje verificado");
 		}
 	}
 	
@@ -47,6 +49,7 @@ public class Client {
 	public static void main(String args[]) {
 		try {
 			new Client();
+
 		}
 		catch(Exception e) {
 			System.out.println(e.getMessage());

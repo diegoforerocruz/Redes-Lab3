@@ -36,12 +36,21 @@ public class ThreadServidor implements Runnable {
 	}
 	
 	public void iniciarConexion() throws Exception{
+		StringBuilder concatenador = new StringBuilder("Tiempo de envio del documento con hash: ");
 		if(is.readUTF().equals("Preparado")) {
+			Server.imprimir("Enviando documento");
+			long tiempo = System.currentTimeMillis();
 			enviarString(documento);
+			Server.imprimir("Enviando hash documento");
 			enviarHashString(documento);
 			if(!is.readUTF().equals("Recibido")) {
+				tiempo = System.currentTimeMillis() - tiempo;
+				Server.imprimirLog(concatenador.append(tiempo).append("ms. El estado del envio fue incompleto").toString());
 				throw new Exception();
 			}
+			tiempo = System.currentTimeMillis() - tiempo;
+			Server.imprimirLog(concatenador.append(tiempo).append("ms. El estado del envio fue completo").toString());
+			Server.imprimir("Comprobante recibido");
 		}
 		else {
 			throw new Exception();
@@ -51,6 +60,8 @@ public class ThreadServidor implements Runnable {
 	public void run() {
 		try {
 			iniciarConexion();
+			os.close();
+			is.close();
 			socket.close();
 			
 		} catch (Exception e) {
