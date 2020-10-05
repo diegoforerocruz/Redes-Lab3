@@ -1,82 +1,69 @@
 package paq;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.Mac;
-import javax.imageio.ImageIO;
+import java.security.MessageDigest;
 
 public class ThreadServidor implements Runnable {
-	
+
 	private Socket socket;
+	private String documento;
+	private DataOutputStream os;
+	private DataInputStream is;
+	private MessageDigest md;
 	
-	public ThreadServidor (Socket psocket){
-		socket = psocket;
+	public ThreadServidor(Socket socket, String documento) throws Exception {
+		this.socket = socket;
+		this.documento = documento;
+		os = new DataOutputStream(socket.getOutputStream());
+		is = new DataInputStream(socket.getInputStream());
+		md = MessageDigest.getInstance(Server.HASH);
 	}
 	
-	public void cambiarSocket(){
-		
+	public void enviarHashString(String string) throws Exception {
+		byte[] info = md.digest(string.getBytes("UTF-8"));
+		os.writeInt(info.length);
+		os.flush();
+		os.write(info);
+		os.flush();
+	}
+	
+	public void enviarString(String string) throws Exception {
+		os.writeUTF(string);
+		os.flush();
+	}
+	
+	public void iniciarConexion() throws Exception{
+		if(is.readUTF().equals("Preparado")) {
+			enviarString(documento);
+			enviarHashString(documento);
+			if(!is.readUTF().equals("Recibido")) {
+				throw new Exception();
+			}
+		}
+		else {
+			throw new Exception();
+		}
 	}
 
-	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		OutputStream outputStream;
 		try {
-			outputStream = socket.getOutputStream();
-			BufferedReader image = new BufferedReader(new FileReader(new File("./Files/prueba.txt")));
-			long hash1 = image.hashCode();
-			long hash2 = image.hashCode();
+			iniciarConexion();
+			socket.close();
 			
-			
-
-	        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-	        ImageIO.write(image, "jpg", byteArrayOutputStream);
-
-	        byte[] size = ByteBuffer.allocate(8).putInt(byteArrayOutputStream.size()).array();
-	        outputStream.write(size);
-	        outputStream.write(byteArrayOutputStream.toByteArray());
-	        System.out.println("hash1: "+byteArrayOutputStream.toByteArray().hashCode());
-	        outputStream.flush();
-	        System.out.println("Flushed: " + System.currentTimeMillis());
-
-	        socket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
+			try {
+				socket.close();
+			} catch (IOException e1) {
+				System.out.println(e1.getMessage());
+				e1.printStackTrace();
+			}
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 
-        
 	}
-	
-	public static byte[] hdg(byte[] msg, String algo) throws NoSuchAlgorithmException, InvalidKeyException, IllegalStateException, UnsupportedEncodingException {
-	    Mac mac = Mac.getInstance(algo);
-	    
-	    byte[] bytes = mac.doFinal(msg);
-	    return bytes;
-	}
-
-	public static boolean vi(byte[] msg, String algo, byte[] hash) throws Exception {
-	    byte[] nuevo = hdg(msg, algo);
-	    if (nuevo.length != hash.length)
-	      return false; 
-	    for (int i = 0; i < nuevo.length; i++) {
-	      if (nuevo[i] != hash[i])
-	        return false; 
-	    } 
-	    return true;
-	  }
-
 
 }

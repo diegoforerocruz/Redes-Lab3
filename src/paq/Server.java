@@ -1,59 +1,60 @@
 package paq;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.io.*; 
 
-public class Server 
-{ 
- private Socket          socket   = null; 
- private ServerSocket    server   = null; 
- private DataInputStream in       =  null; 
- private ArrayList<ThreadServidor> arregloThreads = null;
+public class Server {
 
- public Server(int port) 
- { 
+	public final static String IP = "127.0.0.1";
+	public final static String HASH = "SHA-256";
+	public final static int PUERTO = 5000;
 
-     
-     try
-     { 
-         server = new ServerSocket(port);
-         ExecutorService pool = Executors.newFixedThreadPool(25);
-    	 System.out.println("Servidor Iniciado"); 
-    	 System.out.println("AAAAAAARNOOOOOLD2!!!!!"); 
+	private BufferedReader consola;
+	private ServerSocket server;
+	private String documento;
+	private Socket socket;
 
+	public Server() throws Exception {
+		server = new ServerSocket(PUERTO);
+		consola = new BufferedReader(new InputStreamReader(System.in));
+		leerArchivoTxt();
+		ExecutorService pool = Executors.newFixedThreadPool(25);
+		System.out.println("Servidor Iniciado");
+		while (true) {
+			System.out.println("Esperando conexión ...");
+			socket = server.accept();
+			pool.execute(new ThreadServidor(socket, documento));
+			System.out.println("Cliente aceptado");
+		}
+	}
 
-         while(true){
-        	 System.out.println("AAAAAAARNOOOOOLD3!!!!!"); 
+	public void leerArchivoTxt() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File("./Files/prueba.txt")));
+		String next = br.readLine();
+		StringBuilder concatenador = new StringBuilder(next);
+		int i = 0;
+		while (next != null) {
+			if(i!=0) {
+				concatenador.append("\n").append(next);
+			}
+			next = br.readLine();
+			i++;
+		}
+		br.close();
+		documento = concatenador.toString();
+	}
 
-
-             System.out.println("Esperando conexión ..."); 
-             socket = server.accept(); 
-             pool.execute(new ThreadServidor(socket));
-             System.out.println("Cliente aceptado"); 
-             
-             in = new DataInputStream( 
-                 new BufferedInputStream(socket.getInputStream())); 
-
-             String line = ""; 
-
-           
-             System.out.println("Cerrando Conexión"); 
- 
-         }
-
-     } 
-     catch(IOException i) 
-     { 
-         System.out.println(i.getMessage());
-         i.printStackTrace();
-     } 
- } 
-
- public static void main(String args[]) 
- { 
-     Server server = new Server(5002); 
- } 
-} 
+	public static void main(String args[]) {
+		try {
+			new Server();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+}

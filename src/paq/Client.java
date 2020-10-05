@@ -1,100 +1,56 @@
 package paq;
 
-//A Java program for a Client 
 import java.net.*;
-import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.io.*;
 
-import javax.imageio.ImageIO;
+public class Client {
 
-import java.awt.image.BufferedImage;
-import java.io.*; 
+	private DataOutputStream os;
+	private DataInputStream is;
+	private MessageDigest md;
+	private Socket socket;
 
-public class Client 
-{ 
- // initialize socket and input output streams 
- private Socket socket            = null; 
- private DataInputStream  input   = null; 
- private DataOutputStream out     = null; 
+	public Client() throws Exception{
+			iniciarConexion();
+			socket.close();
+	}
 
- // constructor to put ip address and port 
- public Client(String address, int port) 
- { 
-     // establish a connection 
-     try
-     { 
-         socket = new Socket(address, port); 
-         System.out.println("Conectado"); 
-         InputStream inputStream = socket.getInputStream();
-
-         System.out.println("Reading: " + System.currentTimeMillis());
-
-         byte[] sizeAr = new byte[8];
-         inputStream.read(sizeAr);
-         int size = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
-
-         byte[] imageAr = new byte[size];
-         inputStream.read(imageAr);
-
-         BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageAr));
-         System.out.println("hashResult: "+imageAr.hashCode());
-
-         System.out.println("Received " + image.getHeight() + "x" + image.getWidth() + ": " + System.currentTimeMillis());
-         ImageIO.write(image, "jpg", new File("./Files/"+port+".jpg"));
-
-         socket.close();
-     
-
-         // takes input from terminal 
-         input  = new DataInputStream(System.in); 
-
-         // sends output to the socket 
-         out    = new DataOutputStream(socket.getOutputStream()); 
-     } 
-     catch(UnknownHostException u) 
-     { 
-         System.out.println(u); 
-     } 
-     catch(IOException i) 
-     { 
-         System.out.println(i); 
-     } 
-
-     // string to read message from input 
-     String line = ""; 
-
-     // keep reading until "Over" is input 
-     while (!line.equals("Over")) 
-     { 
-         try
-         { 
-             line = input.readLine(); 
-             out.writeUTF(line); 
-         } 
-         catch(IOException i) 
-         { 
-             System.out.println(i); 
-         } 
-     } 
-
-     // close the connection 
-     try
-     { 
-         input.close(); 
-         out.close(); 
-         socket.close(); 
-     } 
-     catch(IOException i) 
-     { 
-         System.out.println(i); 
-     } 
- } 
-
- public static void main(String args[]) 
- { 
-     Client client = new Client("127.0.0.1", 5002); 
-     
-     
-     
- } 
-} 
-
+	public void iniciarConexion() throws Exception{
+		socket = new Socket(Server.IP, Server.PUERTO);
+		os = new DataOutputStream(socket.getOutputStream());
+		is = new DataInputStream(socket.getInputStream());
+		md = MessageDigest.getInstance(Server.HASH);
+		System.out.println("Conectado");
+		os.writeUTF("Preparado");
+		System.out.println("Esperando respuesta del servidor");
+		String documento = is.readUTF();
+		int size = is.readInt();
+		byte[] hash = new byte[size];
+		for(int i=0;i<size;i++) {
+			hash[i] = is.readByte();
+		}
+		if(verificacionHashString(documento, hash)) {
+			os.writeUTF("Recibido");
+			System.out.println("Mensaje correcto");
+		}
+	}
+	
+	public boolean verificacionHashString(String string, byte[] hash) throws Exception {
+		if(Arrays.equals(md.digest(string.getBytes("UTF-8")), hash)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static void main(String args[]) {
+		try {
+			new Client();
+		}
+		catch(Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();	
+		}
+	}
+}
