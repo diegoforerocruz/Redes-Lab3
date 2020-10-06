@@ -28,7 +28,7 @@ public class Server {
 		inicializarServidor();
 		imprimir("Servidor Iniciado");
 		while (true) {
-			imprimir("Esperando conexión ...");
+			imprimir("Esperando conexion ...");
 			socket = server.accept();
 			pool.execute(new ThreadServidor(socket, documento));
 			imprimir("Cliente aceptado");
