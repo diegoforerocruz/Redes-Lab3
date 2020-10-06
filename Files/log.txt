@@ -1,1 +1,2 @@
-Tiempo de envio del documento con hash: 6ms. El estado del envio fue completo
+Tiempo de envio del documento de prueba: 57ms. El estado del envio fue completo
+Tiempo de envio del documento de 100mb: 16086ms. El estado del envio fue completo
