@@ -15,9 +15,6 @@ public class Client {
 
 	public Client() throws Exception {
 		iniciarConexion();
-		os.close();
-		is.close();
-		socket.close();
 	}
 
 	public void iniciarConexion() throws Exception {

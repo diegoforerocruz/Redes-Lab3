@@ -33,9 +33,7 @@ public class Server {
 			socket = server.accept();
 			pool.execute(new ThreadServidor(socket));
 			imprimir("Cliente aceptado");
-			break;
 		}
-		pool.shutdown();
 	}
 
 	public void inicializarServidor() throws Exception {
@@ -104,6 +102,7 @@ public class Server {
 		private DataInputStream is;
 		private ObjectOutputStream bw;
 		private MessageDigest md;
+		private String cliente;
 
 		public ThreadServidor(Socket socket) throws Exception {
 			this.socket = socket;
@@ -111,6 +110,7 @@ public class Server {
 			is = new DataInputStream(socket.getInputStream());
 			bw = new ObjectOutputStream(socket.getOutputStream());
 			md = MessageDigest.getInstance(Server.HASH);
+			cliente = java.time.LocalDate.now()+ " Transaccion realizada por el cliente: "+socket.getLocalAddress()+"/"+socket.getPort()+" ";
 		}
 
 		public void enviarHashString(String string) throws Exception {
@@ -136,7 +136,7 @@ public class Server {
 		}
 
 		public void iniciarConexion() throws Exception {
-			StringBuilder concatenador = new StringBuilder("Tiempo de envio del documento de prueba: ");
+			StringBuilder concatenador = new StringBuilder(cliente + "Tiempo de envio del documento de prueba: ");
 			if (is.readUTF().equals("Preparado")) {
 				Server.imprimir("Enviando documento");
 				long tiempo = System.currentTimeMillis();
@@ -159,7 +159,7 @@ public class Server {
 
 		public void enviarInterstellar() throws Exception {
 			Server.imprimir("Enviando documento");
-			StringBuilder concatenador = new StringBuilder("Tiempo de envio del documento de 100mb: ");
+			StringBuilder concatenador = new StringBuilder(cliente + "Tiempo de envio del documento de 100mb: ");
 			long tiempo = System.currentTimeMillis();
 			enviarString(Server.darInterstellar());
 			enviarHashString(Server.darInterstellar());
@@ -176,7 +176,7 @@ public class Server {
 
 		public void enviarShrek() throws Exception {
 			Server.imprimir("Enviando documento");
-			StringBuilder concatenador = new StringBuilder("Tiempo de envio del documento de 250mb: ");
+			StringBuilder concatenador = new StringBuilder(cliente + "Tiempo de envio del documento de 250mb: ");
 			long tiempo = System.currentTimeMillis();
 			enviarString(Server.darShrek());
 			enviarHashString(Server.darShrek());
